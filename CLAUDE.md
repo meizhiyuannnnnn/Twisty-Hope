@@ -259,7 +259,11 @@
 │   │   └── ai/           # AI 推理模块
 │   └── requirements.txt
 ├── docker-compose.yml    # 本地开发环境
-└── CLAUDE.md             # 本文件
+├── CLAUDE.md             # 本文件
+└── templates/            # 项目脚手架模板
+    ├── web/              # Vite + React + TS
+    ├── backend/          # FastAPI + SQLAlchemy
+    └── desktop/          # Electron + React
 ```
 
 ---
