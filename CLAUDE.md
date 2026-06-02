@@ -22,7 +22,7 @@
 ## 二、组织架构
 
 ```
-                        李振远（总经理）
+                        李振远（总裁）
                               │
               ┌───────────────┼───────────────┐
               │               │               │
@@ -138,6 +138,25 @@
 > 📄 详见 [agents/claude-coordinator.md](agents/claude-coordinator.md)
 
 核心要点：读取状态 → 识别阶段 → 唤醒 Agent → 并行推进 → Review 把关 → 汇报李振远 → 更新看板
+
+### 4.4 强制 Subagent 模式
+
+> ⚠️ **硬性规定 — 不可违反**
+
+| 规则 | 说明 |
+|------|------|
+| **所有 Agent 必须以独立 Subagent 运行** | Claude 协调者使用 `Agent` 工具唤醒每个 Agent，不得自己扮演/模拟 Agent 角色 |
+| **上下文隔离** | 每个 Agent 拥有独立上下文，专注自身职责 |
+| **产出可追踪** | 每个 Agent 的产出独立可审，不做「隐式代理」 |
+| **唯一例外** | 当需求极其简单（如单行修改、确认性问答），Claude 可直接处理，无需唤醒 Agent |
+
+**违规示例：**
+- ❌ Claude 在对话中直接说「我现在以 req-agent 身份问你…」
+- ❌ Claude 自己写 PRD 然后说「这是 req-agent 的产出」
+
+**正确做法：**
+- ✅ 使用 `Agent` 工具，设置 `subagent_type: "general-purpose"`，在 prompt 中加载 Agent 手册和身份
+- ✅ Agent 产出的内容标记为该 Agent 的产出
 
 ---
 
