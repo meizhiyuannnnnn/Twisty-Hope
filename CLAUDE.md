@@ -220,8 +220,11 @@
 
 ### 7.1 代码规范
 
-- **前端 (TS/JS)**：ESLint（airbnb 规则）+ Prettier，提交前自动格式化
-- **后端 (Python)**：Ruff 格式化 + MyPy 类型检查
+| 语言 | 格式化 | Lint | 类型检查 | 配置文件 |
+|------|--------|------|---------|---------|
+| **TypeScript/JS** | Prettier | ESLint (airbnb) | TypeScript | `.prettierrc` + `eslint.config.js` |
+| **Python** | Ruff | Ruff | MyPy (strict) | `ruff.toml` + `mypy.ini` |
+
 - **提交信息**：遵循 Conventional Commits（`feat:` / `fix:` / `docs:` / `refactor:`）
 - **分支策略**：Trunk-based — `main` 分支随时可发布，功能走 feature branch，合并需 Review
 
