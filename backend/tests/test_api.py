@@ -1,19 +1,61 @@
 """Integration tests for the FastAPI backend.
 
 Run with: pytest tests/ -v
-Requires PostgreSQL and Redis services to be running (docker-compose up db redis).
+Uses FastAPI dependency_overrides to mock Redis, DB, and rate limiting.
+No external services required.
 """
 
 from __future__ import annotations
 
 import io
 import os
+from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 from fastapi.testclient import TestClient
 from httpx import ASGITransport, AsyncClient
 
 from app.main import app
+
+
+# ── Mock dependencies ──────────────────────────────────────────────────
+
+@pytest.fixture(autouse=True)
+def _override_dependencies() -> None:
+    """Override FastAPI dependencies with mocks for all tests."""
+    mock_redis = AsyncMock()
+    mock_redis.llen = AsyncMock(return_value=0)
+    mock_redis.zremrangebyscore = AsyncMock(return_value=0)
+    mock_redis.zcard = AsyncMock(return_value=0)
+    mock_redis.zadd = AsyncMock(return_value=1)
+    mock_redis.expire = AsyncMock(return_value=True)
+    mock_redis.rpush = AsyncMock(return_value=1)
+    mock_redis.aclose = AsyncMock()
+    mock_redis.pubsub = MagicMock()
+
+    mock_db = AsyncMock()
+    mock_db.add = MagicMock()
+    mock_db.commit = AsyncMock()
+    mock_db.execute = AsyncMock()
+    mock_db.execute.return_value = MagicMock()
+    mock_db.execute.return_value.scalar_one_or_none = MagicMock(return_value=None)
+
+    async def _get_redis():
+        yield mock_redis
+
+    async def _get_db():
+        yield mock_db
+
+    app.dependency_overrides = {}
+
+    from app.api.deps import get_redis as deps_get_redis
+    from app.api.deps import check_rate_limit_dependency
+    from app.core.database import get_db
+
+    app.dependency_overrides[deps_get_redis] = _get_redis
+    app.dependency_overrides[get_db] = _get_db
+    # rate limit check passes silently when Redis mock returns under-limit
+    app.dependency_overrides[check_rate_limit_dependency] = lambda: None
 
 
 @pytest.fixture

@@ -1,50 +1,82 @@
 """Demucs HT source separation wrapper.
 
-Demucs HT (Hybrid Transformer) is Meta's state-of-the-art music source separation model.
-It separates audio into 4 sources: vocals, drums, bass, other.
+Uses ``torchaudio.models.hdemucs_high`` (built-in) to avoid relying on
+``torch.hub.load`` which requires GitHub access.  Model weights are
+downloaded from ModelScope (modelscope.cn) — accessible in China.
 
 For 2-track mode (vocals + accompaniment):
     - vocals: kept as-is
     - accompaniment: drums + bass + other mixed together
-
-Model file is automatically downloaded via torch.hub on first use.
 """
 
 from __future__ import annotations
 
 import os
 import time
-from pathlib import Path
 
-import numpy as np
 import torch
 import torchaudio
 
 from app.core.config import settings
 
+# ModelScope repo for the hdemucs_high weights
+MODELSCOPE_MODEL = "monetjoe/hdemucs_high_musdbhq"
+
 
 class DemucsSeparator:
-    """Wrapper around Demucs HT for audio source separation."""
+    """Wrapper around HDemucs for audio source separation."""
 
     def __init__(self, progress_callback=None):
-        """Initialize Demucs model.
-
-        Args:
-            progress_callback: Optional async callback(progress_pct, message) for progress updates.
-        """
         self.model = None
         self.device = settings.DEVICE if torch.cuda.is_available() else "cpu"
         self.progress_callback = progress_callback
+        self._sources = ["drums", "bass", "other", "vocals"]
 
     def _ensure_model_loaded(self) -> None:
-        """Lazy-load the Demucs model."""
+        """Lazy-load the HDemucs model and weights."""
         if self.model is not None:
             return
-        self._report_progress(5, "正在加载 Demucs HT 模型...")
-        self.model = torch.hub.load("facebookresearch/demucs", settings.DEMUCS_MODEL)
-        self.model.to(self.device)
-        self.model.eval()
-        self._report_progress(10, "Demucs HT 模型加载完成")
+
+        self._report_progress(2, "正在加载 HDemucs 模型架构...")
+        model = torchaudio.models.hdemucs_high(
+            sources=self._sources,
+        )
+        self._sources = model.sources  # use the canonical ordering
+
+        # Download / load weights from ModelScope (or local cache)
+        self._report_progress(4, "正在下载模型权重（首次约 300MB）...")
+        weight_path = self._get_weights()
+        state_dict = torch.load(weight_path, map_location="cpu", weights_only=True)
+        model.load_state_dict(state_dict)
+
+        model.to(self.device)
+        model.eval()
+        self.model = model
+        self._report_progress(10, "HDemucs 模型加载完成")
+
+    @staticmethod
+    def _get_weights() -> str:
+        """Return path to the model weights file, downloading if needed."""
+        from pathlib import Path
+
+        import modelscope
+
+        cache_dir = Path.home() / ".cache" / "torch" / "hub"
+        cache_dir.mkdir(parents=True, exist_ok=True)
+
+        model_dir = modelscope.snapshot_download(
+            MODELSCOPE_MODEL,
+            cache_dir=str(cache_dir),
+        )
+        # The checkpoint file name inside the repo
+        weight_file = os.path.join(model_dir, "hdemucs_high_musdbhq_only.pt")
+        if not os.path.exists(weight_file):
+            # Try alternative names
+            for f in os.listdir(model_dir):
+                if f.endswith(".pt") or f.endswith(".pth"):
+                    weight_file = os.path.join(model_dir, f)
+                    break
+        return weight_file
 
     def _report_progress(self, pct: int, message: str) -> None:
         """Report progress via callback if available."""
@@ -73,15 +105,21 @@ class DemucsSeparator:
         self._report_progress(10, "正在读取音频文件...")
         wav, sr = torchaudio.load(input_path)
 
-        # Resample if necessary
-        if sr != self.model.samplerate:
-            self._report_progress(15, "正在重采样...")
-            wav = torchaudio.functional.resample(wav, sr, self.model.samplerate)
-            sr = self.model.samplerate
+        # Resample to 44100 Hz (HDemucs sample rate)
+        if sr != 44100:
+            self._report_progress(15, "正在重采样到 44100 Hz...")
+            wav = torchaudio.functional.resample(wav, sr, 44100)
+            sr = 44100
 
-        # Convert to mono if needed (Demucs expects stereo, but handles mono too)
+        # Ensure stereo
         if wav.shape[0] == 1:
             wav = wav.repeat(2, 1)
+        elif wav.shape[0] > 2:
+            wav = wav[:2, :]  # take first 2 channels
+
+        # Normalize
+        ref = wav.mean(dim=0)
+        wav = (wav - ref.mean()) / (ref.std() + 1e-8)
 
         wav = wav.to(self.device)
 
@@ -90,33 +128,34 @@ class DemucsSeparator:
         start_time = time.time()
 
         with torch.no_grad():
-            # Demucs returns a dict of {source_name: tensor}
-            sources = self.model.separate(wav[None])  # Add batch dimension
+            # Model expects (batch, sources, channels, samples)
+            sources = self.model(wav[None])[0]  # remove batch dim
 
         elapsed = time.time() - start_time
-
-        # sources is a dict like {'vocals': (1, 2, samples), 'drums': ..., 'bass': ..., 'other': ...}
         os.makedirs(output_dir, exist_ok=True)
 
         results: dict[str, str] = {}
 
         if mode == "2track":
-            # Mix drums + bass + other into accompaniment
-            self._report_progress(80, "正在合成伴奏轨道...")
-            accompaniment = (
-                sources["drums"][0] + sources["bass"][0] + sources["other"][0]
-            )
-            # Normalize to prevent clipping
+            # Find vocals index
+            vocals_idx = self._sources.index("vocals")
+            vocals = sources[vocals_idx]
+
+            # Mix non-vocal stems into accompaniment
+            acc_indices = [i for i, n in enumerate(self._sources) if n != "vocals"]
+            accompaniment = sources[acc_indices].sum(dim=0)
+
+            # Normalize
             max_val = accompaniment.abs().max()
             if max_val > 1.0:
                 accompaniment = accompaniment / max_val
 
-            # Save vocals
+            self._report_progress(80, "正在保存音频轨道...")
+
             vocals_path = os.path.join(output_dir, "vocals.wav")
-            torchaudio.save(vocals_path, sources["vocals"][0].cpu(), sr)
+            torchaudio.save(vocals_path, vocals.cpu(), sr)
             results["vocals"] = vocals_path
 
-            # Save accompaniment
             accomp_path = os.path.join(output_dir, "accompaniment.wav")
             torchaudio.save(accomp_path, accompaniment.cpu(), sr)
             results["accompaniment"] = accomp_path
@@ -124,12 +163,12 @@ class DemucsSeparator:
             self._report_progress(95, f"分离完成，耗时 {elapsed:.1f} 秒")
         else:
             # 4-track: save all stems
-            step_pct = 60.0 / len(sources)
-            for i, (name, source) in enumerate(sources.items()):
+            step_pct = 60.0 / len(self._sources)
+            for i, name in enumerate(self._sources):
                 pct = 20 + int((i + 1) * step_pct)
                 self._report_progress(pct, f"正在保存 {name} 轨道...")
                 out_path = os.path.join(output_dir, f"{name}.wav")
-                torchaudio.save(out_path, source[0].cpu(), sr)
+                torchaudio.save(out_path, sources[i].cpu(), sr)
                 results[name] = out_path
             self._report_progress(95, f"分离完成，耗时 {elapsed:.1f} 秒")
 

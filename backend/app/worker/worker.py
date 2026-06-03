@@ -38,7 +38,14 @@ logger = logging.getLogger("worker")
 
 
 def _make_progress_callback(task_id: str, redis_client: aioredis.Redis):
-    """Create a synchronous progress callback that publishes to Redis."""
+    """Create a synchronous progress callback that publishes to Redis.
+
+    The callback may be invoked from any thread (e.g. inside a
+    run_in_executor thread pool), so we capture the event loop here
+    (on the main async thread) and use run_coroutine_threadsafe to
+    safely schedule the Redis publish across threads.
+    """
+    loop = asyncio.get_running_loop()
 
     def callback(progress: int, message: str) -> None:
         data = json.dumps({
@@ -48,10 +55,9 @@ def _make_progress_callback(task_id: str, redis_client: aioredis.Redis):
             "progress": progress,
             "message": message,
         })
-        # Schedule async publish
-        asyncio.ensure_future(
+        asyncio.run_coroutine_threadsafe(
             redis_client.publish(f"task:{task_id}:progress", data),
-            loop=asyncio.get_running_loop(),
+            loop,
         )
 
     return callback
@@ -248,7 +254,12 @@ async def run_worker() -> None:
     logger.info("Redis: %s", settings.REDIS_URL)
     logger.info("Device: %s", settings.DEVICE)
 
-    redis_client = aioredis.from_url(settings.REDIS_URL, decode_responses=True)
+    redis_client = aioredis.from_url(
+        settings.REDIS_URL,
+        decode_responses=True,
+        socket_timeout=30,  # must exceed blpop timeout to avoid connection-level timeout
+        socket_connect_timeout=10,
+    )
 
     try:
         while True:

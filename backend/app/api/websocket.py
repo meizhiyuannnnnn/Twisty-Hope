@@ -55,7 +55,12 @@ async def task_progress_websocket(  # type: ignore[misc]
     pubsub = None
 
     try:
-        redis = aioredis.from_url(settings.REDIS_URL, decode_responses=True)
+        redis = aioredis.from_url(
+            settings.REDIS_URL,
+            decode_responses=True,
+            socket_timeout=30,
+            socket_connect_timeout=10,
+        )
         pubsub = redis.pubsub()
 
         channel = f"task:{task_id}:progress"

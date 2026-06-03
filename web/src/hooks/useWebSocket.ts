@@ -11,7 +11,7 @@ interface UseWebSocketReturn {
   disconnect: () => void;
 }
 
-export function useWebSocket(taskId: string | null): UseWebSocketReturn {
+export function useWebSocket(taskId: string | null, token: string | null): UseWebSocketReturn {
   const wsRef = useRef<WebSocket | null>(null);
   const [connectionState, setConnectionState] = useState<ConnectionState>('disconnected');
   const [lastMessage, setLastMessage] = useState<TaskProgress | null>(null);
@@ -29,10 +29,10 @@ export function useWebSocket(taskId: string | null): UseWebSocketReturn {
   }, []);
 
   const connect = useCallback(() => {
-    if (!taskId) return;
+    if (!taskId || !token) return;
     disconnect();
 
-    const url = getWsUrl(taskId);
+    const url = getWsUrl(taskId, token);
     const ws = new WebSocket(url);
     wsRef.current = ws;
 
@@ -66,7 +66,7 @@ export function useWebSocket(taskId: string | null): UseWebSocketReturn {
         setConnectionState('disconnected');
       }
     };
-  }, [taskId, disconnect]);
+  }, [taskId, token, disconnect]);
 
   useEffect(() => {
     return () => {

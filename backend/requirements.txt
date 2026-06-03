@@ -19,6 +19,7 @@ redis>=5.0.0
 # Audio Processing
 torch>=2.0.0
 torchaudio>=2.0.0
+modelscope>=1.20.0
 librosa>=0.10.0
 soundfile>=0.12.0
 numpy>=1.26.0

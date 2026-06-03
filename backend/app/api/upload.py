@@ -12,7 +12,7 @@ from fastapi import APIRouter, Depends, HTTPException, Request, UploadFile
 from redis.asyncio import Redis
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.deps import check_rate_limit_dependency, get_redis
+from app.api.deps import check_rate_limit_dependency, get_client_ip, get_redis
 from app.core.config import settings
 from app.core.database import get_db
 from app.core.security import generate_task_token
@@ -156,7 +156,7 @@ async def upload_audio(  # type: ignore[misc]
     # Create task record
     task = Task(
         id=task_id,
-        ip_address=request.client.host if request.client else "unknown",
+        ip_address=get_client_ip(request),
         original_filename=file.filename or "unknown",
         original_path=filepath,
         file_size=file.size or 0,

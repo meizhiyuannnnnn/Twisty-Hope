@@ -47,6 +47,8 @@ export function HomePage() {
     setSeparationMode,
     taskId,
     setTaskId,
+    token,
+    setToken,
     taskProgress,
     setTaskProgress,
     stems,
@@ -73,7 +75,7 @@ export function HomePage() {
     resetPlayer,
   } = usePlayerStore();
 
-  const { lastMessage, connect: wsConnect, disconnect: wsDisconnect } = useWebSocket(taskId);
+  const { lastMessage, connect: wsConnect, disconnect: wsDisconnect } = useWebSocket(taskId, token);
   const { loadAudio, play, pause, stop, seek } = useAudioPlayer();
   const history = useHistory();
 
@@ -108,6 +110,7 @@ export function HomePage() {
     },
     onSuccess: (data) => {
       setTaskId(data.task_id);
+      setToken(data.token);
       // 上传成功，自动开始分离
       separateMutation.mutate({ mode: separationMode });
     },
@@ -119,8 +122,9 @@ export function HomePage() {
   // ---- 分离 ----
   const separateMutation = useMutation({
     mutationFn: (params: { mode: SeparationMode }) => {
-      if (!taskId) throw new Error('无任务 ID');
-      return api.triggerSeparation(taskId, params);
+      const { taskId: tid, token: tok } = useAppStore.getState();
+      if (!tid) throw new Error('无任务 ID');
+      return api.triggerSeparation(tid, tok!, params);
     },
     onSuccess: (data) => {
       setTaskProgress(data);
@@ -131,9 +135,10 @@ export function HomePage() {
   // ---- 和弦分析 ----
   const chordMutation = useMutation({
     mutationFn: () => {
-      if (!taskId) throw new Error('无任务 ID');
+      const { taskId: tid, token: tok } = useAppStore.getState();
+      if (!tid) throw new Error('无任务 ID');
       setIsChordLoading(true);
-      return api.triggerChordAnalysis(taskId);
+      return api.triggerChordAnalysis(tid, tok!);
     },
     onSuccess: (data) => {
       setChords(data);
@@ -147,8 +152,9 @@ export function HomePage() {
   // ---- 变速变调 ----
   const transformMutation = useMutation({
     mutationFn: (params: TransformParams) => {
-      if (!taskId) throw new Error('无任务 ID');
-      return api.triggerTransform(taskId, params);
+      const { taskId: tid, token: tok } = useAppStore.getState();
+      if (!tid) throw new Error('无任务 ID');
+      return api.triggerTransform(tid, tok!, params);
     },
     onSuccess: () => {
       setIsTransformDirty(false);

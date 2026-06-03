@@ -14,7 +14,7 @@ interface ChordDisplayProps {
 }
 
 export function ChordDisplay({ chords, taskId, onSeekTo, disabled }: ChordDisplayProps) {
-  const { chordNotation, setChordNotation } = useAppStore();
+  const { chordNotation, setChordNotation, token } = useAppStore();
   const [activeChordId, setActiveChordId] = useState<string | null>(null);
 
   const handleClick = (seg: ChordSegment) => {
@@ -62,7 +62,7 @@ export function ChordDisplay({ chords, taskId, onSeekTo, disabled }: ChordDispla
         </div>
 
         <a
-          href={getChordExportUrl(taskId)}
+          href={getChordExportUrl(taskId, token!)}
           download
           className="inline-flex items-center gap-1.5 rounded-lg border border-input px-3 py-1.5 text-sm text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
         >

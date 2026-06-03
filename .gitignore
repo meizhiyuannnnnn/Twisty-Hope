@@ -39,6 +39,9 @@ logs/
 # Docker
 .docker/
 
+# Uploads
+backend/uploads/
+
 # Test
 coverage/
 .coverage*

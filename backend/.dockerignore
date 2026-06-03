@@ -1,0 +1,29 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+.venv/
+venv/
+
+# Tests & Dev
+tests/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+alembic/
+
+# IDE
+.vscode/
+.idea/
+
+# Git
+.git/
+.gitignore
+
+# Environment
+.env
+.env.local
+
+# Uploads (runtime volume)
+uploads/

@@ -26,6 +26,8 @@ interface AppState {
   setSeparationMode: (mode: SeparationMode) => void;
   taskId: string | null;
   setTaskId: (id: string | null) => void;
+  token: string | null;
+  setToken: (token: string | null) => void;
   taskProgress: TaskProgress | null;
   setTaskProgress: (p: TaskProgress | null) => void;
   stems: StemResult[];
@@ -66,6 +68,8 @@ export const useAppStore = create<AppState>((set) => ({
   setSeparationMode: (mode) => set({ separationMode: mode }),
   taskId: null,
   setTaskId: (id) => set({ taskId: id }),
+  token: null,
+  setToken: (token) => set({ token }),
   taskProgress: null,
   setTaskProgress: (p) => set({ taskProgress: p }),
   stems: [],
@@ -92,7 +96,9 @@ export const useAppStore = create<AppState>((set) => ({
       currentFile: null,
       uploadProgress: 0,
       isUploading: false,
+      separationMode: '2track',
       taskId: null,
+      token: null,
       taskProgress: null,
       stems: [],
       transformParams: { ...DEFAULT_TRANSFORM },

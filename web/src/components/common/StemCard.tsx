@@ -7,6 +7,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { cn } from '@/utils/cn';
 import type { StemResult } from '@/types';
 import { getDownloadUrl } from '@/services/api';
+import { useAppStore } from '@/stores/useAppStore';
 
 interface StemCardProps {
   stem: StemResult;
@@ -33,6 +34,7 @@ export function StemCard({
   onVolumeChange,
   onTogglePlay,
 }: StemCardProps) {
+  const token = useAppStore((s) => s.token);
   const colorMap: Record<string, string> = {
     vocals: 'from-rose-500 to-pink-500',
     accompaniment: 'from-indigo-500 to-blue-500',
@@ -66,7 +68,7 @@ export function StemCard({
           </div>
           <div className="flex items-center gap-1">
             <a
-              href={getDownloadUrl(taskId, stem.stem_id)}
+              href={getDownloadUrl(taskId, token!, stem.stem_id)}
               download
               className="inline-flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
               title="下载此音轨"

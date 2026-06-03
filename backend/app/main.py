@@ -15,12 +15,18 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.api import download, task, upload, websocket
 from app.core.config import settings
+from app.core.database import engine
+from app.models.task import Base  # noqa: F401 — ensure all ORM models are loaded
 from app.services.cleaner import cleanup_loop
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):  # type: ignore[arg-type]
     """Application lifespan: start background tasks on startup, clean up on shutdown."""
+    # Create database tables if they don't exist yet
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+
     # Start file cleanup scheduler as background task
     cleanup_task = asyncio.create_task(cleanup_loop(interval=600))
 

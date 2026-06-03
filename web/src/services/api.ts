@@ -1,12 +1,10 @@
 import axios, { type AxiosProgressEvent } from 'axios';
 import type {
-  ApiResponse,
   UploadResponse,
   TaskProgress,
   SeparationRequest,
-  ChordRequest,
-  ChordSegment,
   TransformRequest,
+  ChordSegment,
 } from '@/types';
 
 const http = axios.create({
@@ -24,7 +22,7 @@ export async function uploadFile(
   const form = new FormData();
   form.append('file', file);
 
-  const { data } = await http.post<ApiResponse<UploadResponse>>('/upload', form, {
+  const { data } = await http.post<UploadResponse>('/upload', form, {
     headers: { 'Content-Type': 'multipart/form-data' },
     onUploadProgress: (e: AxiosProgressEvent) => {
       if (e.total && onProgress) {
@@ -33,93 +31,91 @@ export async function uploadFile(
     },
   });
 
-  if (!data.success || !data.data) {
-    throw new Error(data.error ?? '上传失败');
-  }
-  return data.data;
+  return data;
 }
 
 // ============ 任务操作 ============
 
-export async function getTaskStatus(taskId: string): Promise<TaskProgress> {
-  const { data } = await http.get<ApiResponse<TaskProgress>>(`/task/${taskId}`);
-  if (!data.success || !data.data) {
-    throw new Error(data.error ?? '查询失败');
-  }
-  return data.data;
+export async function getTaskStatus(
+  taskId: string,
+  token: string,
+): Promise<TaskProgress> {
+  const { data } = await http.get<TaskProgress>(`/task/${taskId}`, {
+    params: { token },
+  });
+  return data;
 }
 
 export async function triggerSeparation(
   taskId: string,
+  token: string,
   params: SeparationRequest,
 ): Promise<TaskProgress> {
-  const { data } = await http.post<ApiResponse<TaskProgress>>(
+  const { data } = await http.post<TaskProgress>(
     `/task/${taskId}/separate`,
     params,
+    { params: { token } },
   );
-  if (!data.success || !data.data) {
-    throw new Error(data.error ?? '分离请求失败');
-  }
-  return data.data;
+  return data;
 }
 
 export async function triggerChordAnalysis(
   taskId: string,
-  params: ChordRequest = {},
+  token: string,
 ): Promise<ChordSegment[]> {
-  const { data } = await http.post<ApiResponse<ChordSegment[]>>(
+  const { data } = await http.post<ChordSegment[]>(
     `/task/${taskId}/chords`,
-    params,
+    {},
+    { params: { token } },
   );
-  if (!data.success || !data.data) {
-    throw new Error(data.error ?? '和弦分析失败');
-  }
-  return data.data;
+  return data;
 }
 
 export async function triggerTransform(
   taskId: string,
+  token: string,
   params: TransformRequest,
 ): Promise<TaskProgress> {
-  const { data } = await http.post<ApiResponse<TaskProgress>>(
+  const { data } = await http.post<TaskProgress>(
     `/task/${taskId}/transform`,
     params,
+    { params: { token } },
   );
-  if (!data.success || !data.data) {
-    throw new Error(data.error ?? '处理失败');
-  }
-  return data.data;
+  return data;
 }
 
 // ============ 下载 ============
 
-export function getDownloadUrl(taskId: string, stemId: string): string {
-  return `/api/task/${taskId}/download/${stemId}`;
+export function getDownloadUrl(taskId: string, token: string, stemId: string): string {
+  return `/api/task/${taskId}/download/${stemId}?token=${encodeURIComponent(token)}`;
 }
 
 export async function downloadStem(
   taskId: string,
+  token: string,
   stemId: string,
-  format: string = 'mp3',
 ): Promise<Blob> {
-  const { data } = await http.get<Blob>(`/task/${taskId}/download/${stemId}`, {
-    params: { format },
-    responseType: 'blob',
-  });
+  const { data } = await http.get<Blob>(
+    `/task/${taskId}/download/${stemId}`,
+    {
+      params: { token },
+      responseType: 'blob',
+    },
+  );
   return data;
 }
 
 // ============ 和弦导出 ============
 
-export function getChordExportUrl(taskId: string): string {
-  return `/api/task/${taskId}/chords/export`;
+export function getChordExportUrl(taskId: string, token: string): string {
+  return `/api/task/${taskId}/chords/export?token=${encodeURIComponent(token)}`;
 }
 
 // ============ WebSocket URL ============
 
-export function getWsUrl(taskId: string): string {
+export function getWsUrl(taskId: string, token: string): string {
   const proto = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-  return `${proto}//${window.location.host}/ws/task/${taskId}`;
+  return `${proto}//${window.location.host}/ws/task/${taskId}?token=${encodeURIComponent(token)}`;
 }
 
 export default http;

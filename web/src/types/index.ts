@@ -124,9 +124,11 @@ export interface ApiResponse<T = unknown> {
 
 export interface UploadResponse {
   task_id: string;
-  file_name: string;
+  token: string;
+  original_filename: string;
   file_size: number;
-  duration: number;
+  duration: number | null;
+  message?: string;
 }
 
 export interface SeparationRequest {

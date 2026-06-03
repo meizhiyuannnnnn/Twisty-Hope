@@ -5,18 +5,21 @@ from __future__ import annotations
 import asyncio
 import os
 import subprocess
-from typing import Callable
+from typing import Callable, TYPE_CHECKING
 
-from app.ai.demucs import DemucsSeparator
+if TYPE_CHECKING:
+    from app.ai.demucs import DemucsSeparator
 
 # Global model instance (lazy loaded, shared across requests)
-_separator: DemucsSeparator | None = None
+_separator: DemucsSeparator | None = None  # type: ignore[valid-type]
 
 
-def get_separator(progress_callback: Callable | None = None) -> DemucsSeparator:
+def get_separator(progress_callback: Callable | None = None) -> DemucsSeparator:  # type: ignore[valid-type]
     """Get or create the Demucs separator instance."""
     global _separator
     if _separator is None:
+        from app.ai.demucs import DemucsSeparator  # Lazy import for testability
+
         _separator = DemucsSeparator(progress_callback=progress_callback)
     elif progress_callback:
         _separator.progress_callback = progress_callback

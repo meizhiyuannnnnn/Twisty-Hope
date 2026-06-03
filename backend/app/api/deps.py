@@ -17,9 +17,33 @@ from app.core.security import check_rate_limit
 from app.models.task import Task
 
 
+def get_client_ip(request: Request) -> str:
+    """Extract the real client IP from reverse-proxy headers.
+
+    FastAPI behind Nginx sees the proxy's IP as `request.client.host`.
+    This helper reads `X-Real-IP` or `X-Forwarded-For` to get the
+    original client address.
+
+    Priority: X-Real-IP > X-Forwarded-For (first entry) > request.client.host
+    """
+    x_real_ip = request.headers.get("X-Real-IP")
+    if x_real_ip:
+        return x_real_ip.strip()
+    x_forwarded_for = request.headers.get("X-Forwarded-For")
+    if x_forwarded_for:
+        # The leftmost IP is the original client
+        return x_forwarded_for.split(",")[0].strip()
+    return request.client.host if request.client else "unknown"
+
+
 async def get_redis() -> AsyncGenerator[Redis, None]:  # type: ignore[misc]
     """Dependency: yield a Redis connection."""
-    r = aioredis.from_url(settings.REDIS_URL, decode_responses=True)
+    r = aioredis.from_url(
+        settings.REDIS_URL,
+        decode_responses=True,
+        socket_timeout=10,
+        socket_connect_timeout=5,
+    )
     try:
         yield r
     finally:
@@ -34,7 +58,7 @@ async def check_rate_limit_dependency(
 
     Raises HTTPException 429 if the IP has exceeded the limit.
     """
-    ip = request.client.host if request.client else "unknown"
+    ip = get_client_ip(request)
     allowed, remaining = await check_rate_limit(ip, redis)
 
     if not allowed:
