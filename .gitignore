@@ -40,7 +40,12 @@ logs/
 .docker/
 
 # Uploads
-backend/uploads/
+p001-audio-separator/backend/uploads/*
+!p001-audio-separator/backend/uploads/.gitkeep
+
+# Claude Code
+.claude/
+!.claude/settings.json
 
 # Test
 coverage/

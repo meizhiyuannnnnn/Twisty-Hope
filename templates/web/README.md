@@ -1,15 +1,14 @@
 # Web 前端模板 — React + Vite + TypeScript + Tailwind
 
-## 使用方法
+## 快速启动
 
 ```bash
-# 1. 创建项目（在新项目目录下执行）
-npm create vite@latest web -- --template react-ts
-cd web
+# 1. 复制模板到新项目
+cp -r templates/web 新项目/web
+cd 新项目/web
 
 # 2. 安装依赖
-npm install react-router-dom zustand @tanstack/react-query axios
-npm install -D tailwindcss @tailwindcss/vite postcss prettier prettier-plugin-tailwindcss
+npm install
 
 # 3. 复制公司配置文件
 cp ../../.prettierrc .prettierrc
@@ -19,51 +18,30 @@ cp ../../eslint.config.js eslint.config.js
 npm run dev
 ```
 
-## 目录结构
+## 技术栈
 
-```
-web/
-├── src/
-│   ├── components/       # 通用组件
-│   │   └── ui/           # shadcn/ui 组件（按需安装）
-│   ├── pages/            # 页面组件
-│   ├── hooks/            # 自定义 Hooks
-│   ├── services/         # API 调用封装
-│   ├── stores/           # Zustand stores
-│   ├── types/            # TypeScript 类型
-│   └── main.tsx          # 入口
-├── index.html
-├── vite.config.ts
-├── tsconfig.json
-└── package.json
-```
-
-## 关键配置
-
-### vite.config.ts 模板
-```ts
-import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react';
-import tailwindcss from '@tailwindcss/vite';
-
-export default defineConfig({
-  plugins: [react(), tailwindcss()],
-  server: { port: 3000 },
-});
-```
-
-### Tailwind 入口 (main.css)
-```css
-@import "tailwindcss";
-```
-
-## 公司标准依赖
-
-| 类型 | 包 |
-|------|-----|
+| 层面 | 技术 |
+|------|------|
+| 框架 | React 18 + Vite 5 |
+| 类型 | TypeScript 5.x |
+| 样式 | Tailwind CSS 3 |
 | 路由 | react-router-dom |
-| 状态（客户端）| zustand |
-| 状态（服务端）| @tanstack/react-query |
+| 状态 | Zustand + React Query |
 | HTTP | axios |
-| UI | shadcn/ui（按需安装） |
-| 样式 | tailwindcss |
+| 测试 | Vitest |
+| 格式化 | Prettier + ESLint |
+
+## 模板包含
+
+- ✅ 可运行的 Hello World 页面
+- ✅ React Router 路由配置
+- ✅ Zustand store 示例
+- ✅ axios API 客户端封装（含错误拦截）
+- ✅ TypeScript 类型定义
+- ✅ Tailwind CSS 配置
+- ✅ Vite 开发代理（`/api` → `localhost:8000`）
+- ✅ 404 页面
+
+## 变量替换
+
+模板中的 `{{PROJECT_NAME}}` 需替换为实际项目名。

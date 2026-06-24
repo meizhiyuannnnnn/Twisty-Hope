@@ -43,11 +43,11 @@
               └───────────────┴───────┬───────┘
                                       │
                           按需唤醒的专项 Agent
-                    ┌────┬────┬────┬────┬────┐
-                    │    │    │    │    │    │
-                   UI/  DevOps 安全  AI   文档
-                   UX         审查  模型  Agent
-                  Agent       Agent Agent
+              ┌────┬────┬────┬────┬────┬────┬────┐
+              │    │    │    │    │    │    │    │
+             UI/  DevOps 安全  AI   文档  维护  文员
+             UX         审查  模型  Agent Agent Agent
+            Agent       Agent Agent
 ```
 
 ---
@@ -76,6 +76,8 @@
 | **DevOps Agent** | `devops-agent` | 首次部署 / CI/CD 配置 | [📄](agents/devops-agent.md) | [📦](agents/devops-agent/SKILLS.md) |
 | **安全审查 Agent** | `sec-agent` | 上线前 / 敏感数据 | [📄](agents/sec-agent.md) | [📦](agents/sec-agent/SKILLS.md) |
 | **文档 Agent** | `doc-agent` | Milestone / 交付前 | [📄](agents/doc-agent.md) | [📦](agents/doc-agent/SKILLS.md) |
+| **项目维护 Agent** | `maint-agent` | 交付后维护 / Bug 修复 / 依赖更新 | [📄](agents/maint-agent.md) | [📦](agents/maint-agent/SKILLS.md) |
+| **文员 Agent** | `clerk-agent` | 办公文档处理 / Word/Excel/PPT 制作 | [📄](agents/clerk-agent.md) | [📦](agents/clerk-agent/SKILLS.md) |
 
 ### 3.3 扩展规则
 
@@ -92,18 +94,18 @@
 ### 4.1 项目生命周期
 
 ```
-┌──────────┐    ┌──────────┐    ┌──────────┐    ┌──────────┐    ┌──────────┐
-│ ① 需求   │───▶│ ② 设计   │───▶│ ③ 开发   │───▶│ ④ 质量   │───▶│ ⑤ 交付   │
-│          │    │          │    │          │    │          │    │          │
-│ req-agent│    │arch-agent│    │fe-agent  │    │test-agent│    │devops    │
-│          │    │ui-agent* │    │be-agent  │    │sec-agent*│    │doc-agent*│
-│          │    │          │    │ai-agent* │    │claude    │    │          │
-│          │    │          │    │claude    │    │          │    │          │
-└──────────┘    └──────────┘    └──────────┘    └──────────┘    └──────────┘
-     │               │               │               │               │
-     ▼               ▼               ▼               ▼               ▼
-  PRD 文档       架构设计稿      功能代码        测试报告        上线产品
-  验收标准       UI 原型         Review 记录    安全报告        项目文档
+┌──────────┐    ┌──────────┐    ┌──────────┐    ┌──────────┐    ┌──────────┐    ┌──────────┐
+│ ① 需求   │───▶│ ② 设计   │───▶│ ③ 开发   │───▶│ ④ 质量   │───▶│ ④.5 稳定化│──▶│ ⑤ 交付   │
+│          │    │          │    │          │    │          │    │          │    │          │
+│ req-agent│    │arch-agent│    │fe-agent  │    │test-agent│    │claude    │    │devops*   │
+│          │    │ui-agent* │    │be-agent  │    │sec-agent*│    │maint*    │    │doc-agent*│
+│          │    │          │    │ai-agent* │    │claude    │    │          │    │          │
+│          │    │          │    │claude    │    │          │    │          │    │          │
+└──────────┘    └──────────┘    └──────────┘    └──────────┘    └──────────┘    └──────────┘
+     │               │               │               │               │               │
+     ▼               ▼               ▼               ▼               ▼               ▼
+  PRD 文档       架构设计稿      功能代码        测试报告       稳定化验证      上线产品
+  验收标准       UI 原型         Review 记录    安全报告       回归测试       项目文档
 ```
 
 > `*` 标记的 Agent 为按需唤醒
@@ -127,11 +129,21 @@
     │
     ├── ④ test-agent 启动                  ← 必须
     │       ├── sec-agent 唤醒？            ← 上线前 / 敏感项目
+    │       └── 测试报告
+    │
+    ├── ④.5 稳定化阶段（新增）              ← 必须
+    │       ├── Docker 实跑 24h 验证
+    │       ├── 边界场景测试
+    │       ├── 修复稳定化中发现的 Bug（maint-agent 或对应开发 Agent）
     │       └── Claude 终审
     │
     └── ⑤ devops-agent 唤醒？              ← 需要部署时
-            └── doc-agent 唤醒？            ← Milestone 节点
+            ├── doc-agent 唤醒？            ← Milestone 节点
+            └── maint-agent 待命           ← 交付后维护
 ```
+
+> 📝 **文员 Agent（clerk-agent）** 为全局可用 Agent——任何时候需要制作 Word/Excel/PPT/PDF 文档或报表，无论当前处于哪个阶段，都可随时唤醒，不限于开发流程内。
+> 📝 **Claude 标识说明**：CLAUDE.md 中 Agent 标识 `claude`（协调者）对应的手册文件为 `agents/claude-coordinator.md`，标识与文件名约定俗成，保持不变。
 
 ### 4.3 Claude（协调者）的行为准则
 
@@ -157,6 +169,31 @@
 **正确做法：**
 - ✅ 使用 `Agent` 工具，设置 `subagent_type: "general-purpose"`，在 prompt 中加载 Agent 手册和身份
 - ✅ Agent 产出的内容标记为该 Agent 的产出
+
+### 4.5 稳定化阶段规范（新增 ⚠️）
+
+> ⚠️ **v1.0 收尾后新增** — P001 复盘发现「测试通过 ≠ 可以交付」，必须增加稳定化阶段
+
+| 规则 | 说明 |
+|------|------|
+| **Docker 实跑验证** | 在 Docker 环境中实际运行 ≥ 24h，确认无内存泄漏、进程退出等问题 |
+| **边界场景测试** | 大文件、空文件、并发请求、断网恢复等边界场景 |
+| **跨平台验证** | 确认 Dockerfile 在 Linux 目标平台正常构建（非仅开发机） |
+| **修复后回归** | 稳定化中发现的 Bug 修复后，必须重跑全量测试 |
+| **Claude 终审** | 稳定化通过后 Claude 终审，确认无遗留问题 |
+
+### 4.6 Claude 输出风格规则
+
+> ⚠️ **硬性规定 — 不可违反**
+
+| # | 规则 | 说明 |
+|---|------|------|
+| **1** | **直接给结论** | 不要前置解释和铺垫 |
+| **2** | **不要复述问题** | 不说"好的"、"明白了"、"让我来..."等引导词 |
+| **3** | **区分大小事项** | 简单问题一句话回答，复杂问题才展开 |
+| **4** | **客观陈述** | 不用"很棒的问题"、"非常聪明"等捧场词 |
+| **5** | **不加多余总结** | 回答末尾不重复总结 |
+| **6** | **不确定就问** | 不确定时停下来向李振远确认，不要猜测 |
 
 ---
 
@@ -225,13 +262,23 @@
 
 | 项目编号 | 项目名称 | 状态 | 优先级 | 负责人 | 截止日期 |
 |---------|---------|------|--------|--------|---------|
-| — | 待立项 | — | — | — | — |
+| P001 | 音频分离工具 | ✅ v1.0 完成 | — | 李振远 + Claude | 2026-06-03 |
+| — | P001 复盘改进 | ✅ 完成（2026-06-24 全量审查） | 🟡 中 | Claude | 2026-06-24 |
+
+> 📁 **项目文件隔离**：P001 的所有文件位于 `p001-audio-separator/` 目录。公司共享文件（CLAUDE.md、agents/、templates/、skills/、lint 配置等）保留在仓库根目录。详见 [项目文件隔离原则](.claude/memory/项目文件隔离原则.md)。
+> 
+> 📋 **P001 复盘**：详见 [P001 经验教训](.claude/memory/p001-lessons-learned.md) 和 [改进路线图](.claude/memory/p001-improvement-roadmap.md)。
 
 ### Agent 任务分配
 
 | 项目 | Agent | 任务 | 状态 |
 |------|-------|------|------|
-| — | — | — | — |
+| P001 | req-agent | PRD 输出 | ✅ 完成 |
+| P001 | arch-agent | 架构设计 | ✅ 完成 |
+| P001 | fe-agent | 前端开发 | ✅ 完成 |
+| P001 | be-agent | 后端开发 | ✅ 完成 |
+| P001 | test-agent | 测试 | ✅ 完成 |
+| P001 | Claude | 终审 + v1.0 收尾 | ✅ 完成 |
 
 ---
 
@@ -257,32 +304,49 @@
 
 ### 7.3 文件组织约定
 
+> ⚠️ **项目隔离原则**：每个项目拥有独立文件夹，项目专属文件（代码、docker-compose、.env）置于其中。公司共享文件保留在根目录。
+
 ```
-项目仓库/
-├── web/                  # React 前端
-│   ├── src/
-│   │   ├── components/   # 通用组件
-│   │   ├── pages/        # 页面
-│   │   ├── hooks/        # 自定义 Hooks
-│   │   └── styles/       # 样式
-│   └── package.json
-├── desktop/              # Electron 桌面端
-│   ├── main/             # 主进程
-│   ├── preload/          # 预加载脚本
-│   └── electron-builder.yml
-├── backend/              # Python FastAPI 后端
-│   ├── app/
-│   │   ├── api/          # API 路由
-│   │   ├── models/       # 数据模型
-│   │   ├── services/     # 业务逻辑
-│   │   └── ai/           # AI 推理模块
-│   └── requirements.txt
-├── docker-compose.yml    # 本地开发环境
-├── CLAUDE.md             # 本文件
-└── templates/            # 项目脚手架模板
-    ├── web/              # Vite + React + TS
-    ├── backend/          # FastAPI + SQLAlchemy
-    └── desktop/          # Electron + React
+彼方希冀程序开发公司/                # 公司仓库根目录
+├── CLAUDE.md                        # 本文件（公司大脑中枢）
+├── agents/                          # Agent 角色手册（所有项目共享）
+├── skills/                          # 公司自定义 Skill 定义
+│   ├── quality-gate.md              # 代码质量门禁
+│   ├── project-init.md              # 项目初始化
+│   ├── docker-dev.md                # Docker 开发环境管理
+│   ├── release.md                   # 版本发布流程
+│   └── env-check.md                 # 开发环境检查
+├── templates/                       # 项目脚手架模板（可运行代码）
+│   ├── web/                         # Vite + React + TS + Tailwind
+│   ├── backend/                     # FastAPI + SQLAlchemy + Alembic
+│   └── desktop/                     # Electron + React
+├── .prettierrc                      # 共享格式化配置
+├── eslint.config.js                 # 共享 JS/TS Lint
+├── ruff.toml                        # 共享 Python Lint
+├── mypy.ini                         # 共享 Python 类型检查
+├── .gitignore                       # 共享忽略规则
+│
+├── p001-audio-separator/                    # P001 项目目录（示例）
+│   ├── README.md
+│   ├── docker-compose.yml
+│   ├── .env / .env.example
+│   ├── docs/
+│   ├── web/                         # React 前端
+│   │   ├── src/
+│   │   │   ├── components/
+│   │   │   ├── pages/
+│   │   │   ├── hooks/
+│   │   │   └── stores/
+│   │   └── package.json
+│   └── backend/                     # Python FastAPI 后端
+│       ├── app/
+│       │   ├── api/
+│       │   ├── models/
+│       │   ├── services/
+│       │   └── ai/
+│       └── requirements.txt
+│
+└── [未来项目]/                      # P002, P003...
 ```
 
 ---
@@ -302,26 +366,33 @@
 
 ```
 □ 李振远确认项目立项
+□ env-check 环境版本检查
+□ project-init 项目初始化（从模板）
 □ req-agent 输出 PRD + 验收标准
 □ 李振远确认需求
 □ arch-agent 输出架构设计
 □ ui-agent 输出 UI 原型（如需）
 □ 李振远确认设计
-□ 开发环境搭建（devops-agent 如需）
+□ devops-agent 搭建 Docker 环境 + CI/CD（如需）
 □ fe-agent + be-agent 并行开发
 □ ai-agent 集成 AI 功能（如需）
 □ Claude 持续 Review
-□ test-agent 测试
-□ sec-agent 安全审查（如需）
+□ quality-gate 质量门禁（每轮开发后）
+□ test-agent 测试（单元 + 组件 + E2E）
+□ sec-agent 安全审查（如需 / 上线前）
+□ ④.5 稳定化阶段（Docker 实跑 24h + 边界测试；maint-agent 修复发现 Bug）
 □ Claude 终审
 □ 李振远验收
 □ devops-agent 部署上线
 □ doc-agent 输出文档
+□ release 版本发布 + CHANGELOG
+□ maint-agent 待命（交付后 Bug 修复 + 依赖更新）
 □ 项目归档，更新看板
 ```
 
 ---
 
-> **最后更新**：2026-06-02
+> **最后更新**：2026-06-24
 > **维护者**：李振远 + Claude
+> **本次更新**：全量审查修复 — 清除硬编码凭据、补全 memory/docs、统一 Agent 流程、CORS 格式修正、clerk-agent 全局可用、P001 复盘完成
 > **下次 Review**：项目启动前或每月一次

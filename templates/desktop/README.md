@@ -1,95 +1,52 @@
 # 桌面端模板 — Electron + React
 
-## 使用方法
+## 快速启动
 
 ```bash
-# 1. 先用 web 模板创建前端项目
-# 2. 在项目根目录添加 Electron
+# 1. 先搭建前端（用 web 模板）
+cp -r templates/web 新项目/web
+cd 新项目/web && npm install
 
-mkdir desktop && cd desktop
-npm init -y
-npm install electron electron-builder
-npm install -D concurrently wait-on
+# 2. 再搭建桌面壳
+cp -r templates/desktop 新项目/desktop
+cd 新项目/desktop
+npm install
 
-# 3. 复制 .prettierrc 等配置文件
+# 3. 开发模式（web + electron 并发）
+npm run dev
 ```
 
-## 目录结构
+## 技术栈
+
+| 层面 | 技术 |
+|------|------|
+| 壳框架 | Electron 28 |
+| UI | React（共享 web 模板代码） |
+| 打包 | electron-builder |
+| IPC | contextBridge + ipcRenderer |
+
+## 模板包含
+
+- ✅ Electron 主进程（窗口管理、IPC）
+- ✅ preload 脚本（contextBridge 安全暴露）
+- ✅ 文件选择对话框 IPC 示例
+- ✅ 开发/生产模式切换
+- ✅ electron-builder 打包配置
+
+## 桌面端架构
 
 ```
 desktop/
-├── main/                 # Electron 主进程
-│   └── index.js          # 窗口创建、IPC、托盘
-├── preload/              # 预加载脚本
-│   └── index.js          # contextBridge 暴露 API
-├── electron-builder.yml  # 打包配置
-└── package.json
+├── main/index.js      # Electron 主进程
+├── preload/index.js   # 安全桥接层
+├── src/               # → 链接或复制 web 模板
+└── package.json       # Electron 依赖 + 启动脚本
 ```
 
-## main/index.js 模板
+## 变量替换
 
-```javascript
-const { app, BrowserWindow, Tray, Menu } = require('electron');
-const path = require('path');
+模板中的 `{{PROJECT_NAME}}` 需替换为实际项目名。
 
-let mainWindow;
+---
 
-function createWindow() {
-  mainWindow = new BrowserWindow({
-    width: 1200,
-    height: 800,
-    webPreferences: {
-      preload: path.join(__dirname, '../preload/index.js'),
-      contextIsolation: true,
-      nodeIntegration: false,
-    },
-  });
-
-  // 开发模式加载 Vite dev server，生产模式加载打包后的文件
-  const isDev = process.env.NODE_ENV === 'development';
-  const url = isDev
-    ? 'http://localhost:3000'
-    : `file://${path.join(__dirname, '../../web/dist/index.html')}`;
-
-  mainWindow.loadURL(url);
-}
-
-app.whenReady().then(createWindow);
-
-app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') app.quit();
-});
-```
-
-## preload/index.js 模板
-
-```javascript
-const { contextBridge, ipcRenderer } = require('electron');
-
-contextBridge.exposeInMainWorld('electronAPI', {
-  // 暴露安全的 IPC 接口给渲染进程
-  openFile: () => ipcRenderer.invoke('dialog:openFile'),
-  getAppVersion: () => ipcRenderer.invoke('app:version'),
-});
-```
-
-## electron-builder.yml 模板
-
-```yaml
-appId: com.bifaangxiji.app
-productName: MyApp
-directories:
-  output: dist
-  buildResources: build
-files:
-  - main/**/*
-  - preload/**/*
-  - ../web/dist/**/*
-win:
-  target:
-    - nsis
-  icon: build/icon.ico
-nsis:
-  oneClick: false
-  allowToChangeInstallationDirectory: true
-```
+> **彼方希冀程序开发公司** | 桌面端模板 v1.0 | 依赖 web 模板

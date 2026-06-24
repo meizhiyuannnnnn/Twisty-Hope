@@ -163,6 +163,11 @@
 | `mindmap` | 任务分解脑图 |
 | `architecture` | 架构图评审 |
 | `find-skills` | 发现安装新 skill |
+| `quality-gate` | 代码质量门禁 |
+| `project-init` | 项目初始化 |
+| `env-check` | 环境版本检查 |
+| `infocard` | 项目状态卡片/里程碑快报 |
+| `infographic` | 项目路线图/进度可视化 |
 
 ---
 

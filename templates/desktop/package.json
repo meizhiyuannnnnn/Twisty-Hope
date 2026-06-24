@@ -1,0 +1,41 @@
+{
+  "name": "{{PROJECT_NAME}}-desktop",
+  "version": "0.1.0",
+  "description": "{{PROJECT_NAME}} 桌面应用",
+  "main": "main/index.js",
+  "scripts": {
+    "dev": "concurrently \"npm run dev:web\" \"wait-on http://localhost:3000 && npm run dev:electron\"",
+    "dev:web": "cd src && npm run dev",
+    "dev:electron": "electron .",
+    "build": "cd src && npm run build && electron-builder",
+    "lint": "cd src && npm run lint",
+    "typecheck": "cd src && npm run typecheck"
+  },
+  "build": {
+    "appId": "com.{{PROJECT_NAME}}.app",
+    "productName": "{{PROJECT_NAME}}",
+    "directories": {
+      "output": "release"
+    },
+    "win": {
+      "target": ["nsis"],
+      "icon": "assets/icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    },
+    "files": [
+      "main/**/*",
+      "preload/**/*",
+      "src/dist/**/*",
+      "package.json"
+    ]
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "electron": "^28.2.0",
+    "electron-builder": "^24.9.1",
+    "wait-on": "^7.2.0"
+  }
+}

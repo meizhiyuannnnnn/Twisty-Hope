@@ -1,0 +1,17 @@
+# Build output
+dist/
+release/
+
+# Dependencies
+node_modules/
+
+# Web build (in src/)
+src/dist/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
