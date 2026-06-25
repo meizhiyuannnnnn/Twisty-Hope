@@ -146,3 +146,11 @@
 | `agent-platform-prompt-management` | Prompt 版本管理 |
 | `agent-platform-model-registry` | 模型注册管理 |
 | `agent-platform-tuning` | 模型微调 |
+
+---
+
+## 运行记录
+
+| 日期 | 项目 | 任务 | 产出 | 耗时 |
+|------|------|------|------|------|
+

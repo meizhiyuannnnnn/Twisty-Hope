@@ -222,3 +222,43 @@
    - 进行中的项目有哪些
    - 各 Agent 的任务进度
    - 待决策的事项
+
+---
+
+## 运行记录维护（审计追踪）
+
+> ⚠️ **硬性规定 — 不可违反**
+
+### 规则
+1. **每次 Agent 调用完成后**，Claude 必须在对应 Agent 手册文件的 `## 运行记录` 表格中追加一行
+2. 追加格式：`| 日期 | 项目 | 任务 | 产出 | 耗时 |`
+3. 表格位于每个 Agent 手册文件末尾
+
+### 需维护运行记录的 Agent 文件
+
+| Agent | 手册文件 |
+|-------|---------|
+| req-agent | `agents/req-agent.md` |
+| arch-agent | `agents/arch-agent.md` |
+| fe-agent | `agents/fe-agent.md` |
+| be-agent | `agents/be-agent.md` |
+| test-agent | `agents/test-agent.md` |
+| ui-agent | `agents/ui-agent.md` |
+| ai-agent | `agents/ai-agent.md` |
+| sec-agent | `agents/sec-agent.md` |
+| doc-agent | `agents/doc-agent.md` |
+| devops-agent | `agents/devops-agent.md` |
+| maint-agent | `agents/maint-agent.md` |
+| clerk-agent | `agents/clerk-agent.md` |
+
+### 追加示例
+```
+| 2026-06-26 | P001 音频分离 | 修复 WebSocket 断连 Bug | PR #12 (2 files) | 15min |
+```
+
+### 注意事项
+- 日期格式：`YYYY-MM-DD`
+- 项目列：项目编号 + 简称，如 `P001 音频分离`
+- 任务列：15 字以内简述
+- 产出列：关键产出物（文件数 / PR 编号 / 文档名）
+- 耗时列：约算，如 `10min` / `1h`

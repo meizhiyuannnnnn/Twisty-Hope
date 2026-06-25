@@ -142,3 +142,11 @@ Push → Lint → Test → Build Docker → Deploy
 | `wrangler` | Workers CLI 部署 |
 | `agent-platform-deploy` | AI 模型部署 |
 | `sandbox-sdk` | 安全沙箱环境 |
+
+---
+
+## 运行记录
+
+| 日期 | 项目 | 任务 | 产出 | 耗时 |
+|------|------|------|------|------|
+

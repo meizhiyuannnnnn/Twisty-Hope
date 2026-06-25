@@ -1,0 +1,38 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo \"[彼方希冀] 文件已修改，请及时 Review。\""
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "INPUT=$(cat 2>/dev/null || echo \"\"); if echo \"$INPUT\" | grep -qE '\"command\"\\s*:\\s*\"git commit'; then bash .claude/hooks/git-commit-validate.sh <<< \"$INPUT\"; fi"
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "INPUT=$(cat 2>/dev/null || echo \"\"); if echo \"$INPUT\" | grep -qE '\"command\"\\s*:\\s*\"git push'; then bash .claude/hooks/git-push-validate.sh <<< \"$INPUT\"; fi"
+          }
+        ]
+      }
+    ]
+  },
+  "worktree": {
+    "baseRef": "fresh"
+  }
+}

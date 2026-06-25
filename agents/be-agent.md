@@ -161,3 +161,11 @@ async def create_user(
 | `supabase-postgres-best-practices` | PostgreSQL 优化 |
 | `data-analytics` | 数据管道架构 |
 | `vega` | 数据可视化图表 |
+
+---
+
+## 运行记录
+
+| 日期 | 项目 | 任务 | 产出 | 耗时 |
+|------|------|------|------|------|
+
