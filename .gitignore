@@ -44,8 +44,10 @@ p001-audio-separator/backend/uploads/*
 !p001-audio-separator/backend/uploads/.gitkeep
 
 # Claude Code
-.claude/
+.claude/*
 !.claude/settings.json
+!.claude/docs/
+!.claude/hooks/
 
 # Test
 coverage/

@@ -12,7 +12,7 @@
 | 项目 | 内容 |
 |------|------|
 | **公司名称** | 彼方希冀程序开发公司 |
-| **业务方向** | Web 应用 + 桌面端 (.exe) AI 产品 |
+| **业务方向** | Web 应用 + 桌面端 (.exe) AI 产品 + 游戏开发 |
 | **协作模式** | AI Agent 协作制（按需扩展） |
 | **总经理** | 李振远 — 产品方向决策、最终拍板 |
 | **AI 协调者** | Claude — Agent 任务调度、代码审查、质量把控 |
@@ -48,6 +48,13 @@
              UI/  DevOps 安全  AI   文档  维护  文员
              UX         审查  模型  Agent Agent Agent
             Agent       Agent Agent
+
+═══════════════════════════════════════════
+           游戏产品线（新增）
+═══════════════════════════════════════════
+
+  李振远 → Claude → Tier 1(导演×3) → Tier 2(主管×8) → Tier 3(专家×22+Godot×5)
+  详见 @.claude/docs/game-agent-roster.md
 ```
 
 ---
@@ -86,6 +93,16 @@
 ```
 识别新需求 → 定义 Agent 角色 + 职责 → 李振远审批 → 加入 Agent 池 → 更新本文件
 ```
+
+### 3.4 游戏 Agent（游戏产品线专用 — 3 级金字塔）
+
+> @.claude/docs/game-agent-roster.md
+
+**Tier 1（Opus）**：`creative-director` `technical-director` `producer`
+**Tier 2（Sonnet）**：`game-designer` `lead-programmer` `art-director` `audio-director` `narrative-director` `qa-lead` `release-manager` `localization-lead`
+**Tier 3（Sonnet/Haiku）**：编程/设计/美术/音频/QA 等 22 个专家 + 5 个 Godot 4 专家
+
+Agent 定义文件位于 `.claude/agents/`，Skills 位于 `.claude/skills/game/`。游戏 Agent 全部以独立 Subagent 运行，Claude 不扮演 Agent。
 
 ---
 
@@ -145,6 +162,30 @@
 > 📝 **文员 Agent（clerk-agent）** 为全局可用 Agent——任何时候需要制作 Word/Excel/PPT/PDF 文档或报表，无论当前处于哪个阶段，都可随时唤醒，不限于开发流程内。
 > 📝 **Claude 标识说明**：CLAUDE.md 中 Agent 标识 `claude`（协调者）对应的手册文件为 `agents/claude-coordinator.md`，标识与文件名约定俗成，保持不变。
 
+### 4.2.1 游戏项目工作流（7 阶段）
+
+> @.claude/docs/game-workflow.md
+
+头脑风暴 → 设计 → 实现 → Review → QA → 发布 → Live Ops。使用 `/start` 启动，各阶段 Skill 位于 `.claude/skills/game/`。
+
+**当前阶段：Phase 2 — 视觉升级 + 系统深化**
+
+实际工作循环（5 步）：玩游戏 → 定目标 → Agent 实现 → Claude Review → Godot 验证 → commit
+
+详细文档：
+- 实际工作流：@.claude/docs/game-active-workflow.md
+- 质量标准：@.claude/docs/game-quality-standards.md
+- 核心团队：@.claude/docs/game-core-team.md
+- 技术配置：@.claude/docs/technical-preferences.md
+
+### 4.2.2 项目类型识别规则
+
+> @.claude/docs/project-detection.md
+
+简记：含 `engine.cfg`/`project.godot` → 游戏项目，用 `.claude/agents/`；含 `package.json`/`pyproject.toml` → Web 项目，用 `agents/`。
+
+
+
 ### 4.3 Claude（协调者）的行为准则
 
 > 📄 详见 [agents/claude-coordinator.md](agents/claude-coordinator.md)
@@ -182,7 +223,24 @@
 | **修复后回归** | 稳定化中发现的 Bug 修复后，必须重跑全量测试 |
 | **Claude 终审** | 稳定化通过后 Claude 终审，确认无遗留问题 |
 
-### 4.6 Claude 输出风格规则
+### 4.7 上下文管理策略
+
+> @.claude/docs/context-management.md
+
+核心原则：**文件即记忆，对话只是临时载体。** 上下文窗口有限（~200K tokens），主动管理才能支撑 49+ Agent 的调度。
+
+| 策略 | 说明 |
+|------|------|
+| **规则路径作用域** | Rules 有 `paths`/`globs` 限制，仅编辑匹配文件时激活，不全部加载 |
+| **Agent 按需加载** | Agent 定义仅在 Subagent 创建时加载到其独立上下文，主会话不受影响 |
+| **Skill 按需调用** | Skill 仅在用户键入 `/` 命令时读取，平时不驻留上下文 |
+| **文件即状态** | 关键决策写入文件而非依赖对话记忆；对话压缩后读文件恢复状态 |
+| **增量写入** | 大型文档（GDD/架构）先建骨架，逐节写入，每节完成后可安全压缩 |
+| **主动压缩** | 上下文 ~60-70% 时主动 `/compact`，不等到极限 |
+| **无关任务间 `/clear`** | 切换项目或连续 2+ 次修正失败时清空上下文 |
+| **Subagent 做调研** | 跨文件搜索和研究用 Subagent，返回摘要而非全量文件内容 |
+
+### 4.8 Claude 输出风格规则
 
 > ⚠️ **硬性规定 — 不可违反**
 
@@ -211,6 +269,19 @@
 | **数据库** | PostgreSQL | 16+ | 生产级关系型数据库，支持 JSON 和向量扩展 |
 | **缓存/队列** | Redis | 7+ | 缓存、Session、异步任务队列 |
 | **桌面打包** | electron-builder | 24+ | 一键生成 Windows .exe / .msi 安装包 |
+
+### 5.1.2 游戏技术栈（Godot 4）
+
+| 层面 | 技术 | 说明 |
+|------|------|------|
+| **游戏引擎** | Godot 4.4+ | 开源免费，轻量级，GDScript/C#，适合 2D/3D |
+| **脚本语言** | GDScript 2.0 | Godot 原生语言，类 Python 语法，易上手 |
+| **Shader** | Godot Shader Language | `.gdshader` 文件，类似 GLSL |
+| **原生扩展** | GDExtension (C++) | 高性能模块用 C++ 编写 |
+| **C# 支持** | .NET 8+ | Godot 的 C# 绑定（可选） |
+| **资产管线** | Godot 内置 + 导入脚本 | `.tscn` / `.tres` / `.import` |
+| **版本控制** | Git (trunk-based) | `.gd` / `.tscn` 文本格式，Git 友好 |
+| **CI/CD** | GitHub Actions + Godot CLI | 自动构建/导出 .exe |
 
 ### 5.2 辅助工具
 
@@ -264,6 +335,7 @@
 |---------|---------|------|--------|--------|---------|
 | P001 | 音频分离工具 | ✅ v1.0 完成 | — | 李振远 + Claude | 2026-06-03 |
 | — | P001 复盘改进 | ✅ 完成（2026-06-24 全量审查） | 🟡 中 | Claude | 2026-06-24 |
+| P002 | [待定] 游戏项目 | 🔜 筹备中 | 🟡 中 | 李振远 + Claude | 待定 |
 
 > 📁 **项目文件隔离**：P001 的所有文件位于 `p001-audio-separator/` 目录。公司共享文件（CLAUDE.md、agents/、templates/、skills/、lint 配置等）保留在仓库根目录。详见 [项目文件隔离原则](.claude/memory/项目文件隔离原则.md)。
 > 
@@ -392,7 +464,7 @@
 
 ---
 
-> **最后更新**：2026-06-24
+> **最后更新**：2026-06-26
 > **维护者**：李振远 + Claude
-> **本次更新**：全量审查修复 — 清除硬编码凭据、补全 memory/docs、统一 Agent 流程、CORS 格式修正、clerk-agent 全局可用、P001 复盘完成
+> **本次更新**：引入游戏产品线 — 49 游戏 Agent + 73 Skill + 41 模板 + 12 Hook + 11 规则，双线并存架构
 > **下次 Review**：项目启动前或每月一次
