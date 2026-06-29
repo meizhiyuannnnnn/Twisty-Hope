@@ -43,15 +43,23 @@
   - [x] 12 个角色专属事件（每职业 2 个，6 职业）
   - [x] JOB_NAMES 常量映射
   - [x] 实机验证通过（99 事件，无编译错误，角色专属事件实际触发）
-- [ ] Phase 8.4 主线任务系统（有明确目标和进度）
+- [x] **Phase 8.4 主线任务系统 ✅**
+  - [x] QuestSystem 核心引擎（状态机、9 种目标类型、前置解锁、奖励发放）
+  - [x] 6 个主线任务（覆盖完整游戏流程：生存→建设→故事链→传奇→抉择）
+  - [x] QuestPanel UI（按 Q 键切换，目标进度+进度条）
+  - [x] EventBus 任务信号（quest_activated / quest_completed）
+  - [x] SaveManager 集成（完整存档/读档）
+  - [x] 金色任务完成通知
+  - [x] 实机验证通过（99 事件、6 任务、首任务自动解锁）
 
 ## 本次会话目标
 
 Phase 8.3 角色专属事件系统 ✅ 完成
+Phase 8.4 主线任务系统 ✅ 完成
 
 ## 上次完成
 
-**2026-06-30 Session 2（Phase 8.3 角色专属事件系统）**:
+**2026-06-30 Session 2-3（Phase 8.3 + 8.4）**:
 - ✅ 选择历史追踪 — _choice_history 字典 + get_choice/has_chosen 接口
 - ✅ 增强型前置条件 — choice:/not_choice:/chain_progress: 前缀支持
 - ✅ 条件性选项 — 事件 choices 支持 condition 字段（flag/not_flag/choice/chain_complete）
@@ -88,4 +96,4 @@ Phase 8.3 角色专属事件系统 ✅ 完成
 ---
 
 **last_updated**: 2026-06-30
-**next_session_action**: Phase 8.4 主线任务系统 — 有明确目标和进度的主线任务
+**next_session_action**: Phase 8 收尾 — 车厢专属事件 + 季节专属事件（可选），或进入 Phase 9 视觉打磨
