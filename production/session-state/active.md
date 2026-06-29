@@ -95,5 +95,12 @@ Phase 8.4 主线任务系统 ✅ 完成
 
 ---
 
+- [x] **Phase 8.5 事件扩充收尾 ✅**
+  - [x] EventSystem: has_carriage_type 条件 + carriage_type: 前置前缀 + 条件性选项
+  - [x] 8 个车厢专属事件（每车厢类型 1 个，has_carriage_type 条件判定）
+  - [x] 4 个季节专属事件（春夏秋冬各 1 个）
+  - [x] 4 个内部事件（才艺、写信、竞赛、观星）
+  - [x] 实机验证：115 事件加载正常，无编译错误
+
 **last_updated**: 2026-06-30
-**next_session_action**: Phase 8 收尾 — 车厢专属事件 + 季节专属事件（可选），或进入 Phase 9 视觉打磨
+**next_session_action**: Phase 9 视觉打磨 — 角色像素动画 + 车厢机械动画 + 日夜循环
