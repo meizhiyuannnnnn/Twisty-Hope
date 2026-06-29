@@ -9,58 +9,68 @@
 | **游戏名** | 彼方希冀 |
 | **游戏项目路径** | `C:\Users\李振远\Documents\新建游戏项目\` |
 | **引擎** | Godot 4.7 + GDScript 2.0 |
-| **当前阶段** | Phase 2 — 视觉升级 |
+| **当前阶段** | Phase 8 内容扩充 🔄 |
+| **开发路线图** | `.claude/docs/game-development-roadmap.md` |
 
 ## 当前进度
 
 ### Phase 0: 技术验证 ✅
-- 火车视觉（代码绘制 `_draw()`）
-- 视差背景（5 层）
-- 雪花粒子（CPUParticles2D）
-- 暂停系统 + 三档变速（1×/2×/4×）
-
 ### Phase 1: 最小可玩循环 ✅
-- 资源系统（食物、燃料、材料）
-- 燃料消耗逻辑
-- 角色系统（饥饿、状态）
-- 事件系统（JSON 数据驱动）
-- 车厢系统（9 种车厢类型）
-- UI 面板（资源/角色/事件/车厢）
+### Phase 2: 视觉升级 + 系统深化 ✅
+### Phase 3: 音效系统 ✅
+### Phase 4: 系统完善 ✅
+### Phase 5: 视觉打磨 ✅
+### Phase 6: UI 重构 ✅
+### Phase 7: 系统深度 ✅
 
-### Phase 2: 视觉升级 🔄 进行中
-- [x] 背景接缝修复（layer_near 亮度差 29→2.9，sky/far/mid <2）
-- [x] Train y 位置调整（278→274，车轮坐在钢轨上）
-- [x] BG_OVERLAP 常量优化（1→2）
-- [x] track_drawer 重写（地面渐变、枕木色差、地面积雪纹理）
-- [ ] 背景接缝 Godot 内实机验证
-- [ ] 角色素材接入（用像素素材替换代码绘制）
-- [ ] UI 素材接入
-- [ ] 环境素材接入
-- [ ] 事件内容扩充
-- [ ] 主线剧情
-- [ ] 存档系统
-- [ ] 自动进食逻辑
-- [ ] 供暖燃煤消耗
+### Phase 8: 内容扩充 🔄 进行中
+- [x] 事件扩充至 81（季节10+车厢8+职业6+资源5+故事13+遭遇18+环境12+内部9）
+- [x] **Phase 8.2 连锁事件系统 ✅**
+  - [x] 选择历史追踪（_choice_history）
+  - [x] 增强型前置条件（choice:/not_choice:/chain_progress: 前缀）
+  - [x] 条件性选项显示（choices 中的 condition 字段）
+  - [x] 条件性描述文本（conditional_descriptions）
+  - [x] 链完成奖励系统（5 条链各有独特奖励）
+  - [x] 4 个跨链联动事件（signal+map / legend+signal / trust+hope / 全链聚合）
+  - [x] 链完成 UI 横幅 + 特殊通知样式
+  - [x] 存档系统集成（选择历史 + 奖励状态持久化）
+  - [x] 实机验证通过（86 事件，无编译错误）
+- [x] **Phase 8.3 角色专属事件系统 ✅**
+  - [x] `has_job` 条件支持（conditions 中检查存活角色职业）
+  - [x] `job:N` 前置条件前缀（prerequisites 中按职业过滤）
+  - [x] `has_job` 条件性选项（choices 中按职业显示选项）
+  - [x] 3 个辅助函数（_has_alive_job / _get_alive_jobs / _get_random_character_with_job）
+  - [x] 12 个角色专属事件（每职业 2 个，6 职业）
+  - [x] JOB_NAMES 常量映射
+  - [x] 实机验证通过（99 事件，无编译错误，角色专属事件实际触发）
+- [ ] Phase 8.4 主线任务系统（有明确目标和进度）
 
 ## 本次会话目标
 
-[由李振远在游戏开始前确定]
+Phase 8.3 角色专属事件系统 ✅ 完成
 
 ## 上次完成
 
-[从上次会话结束时更新]
+**2026-06-30 Session 2（Phase 8.3 角色专属事件系统）**:
+- ✅ 选择历史追踪 — _choice_history 字典 + get_choice/has_chosen 接口
+- ✅ 增强型前置条件 — choice:/not_choice:/chain_progress: 前缀支持
+- ✅ 条件性选项 — 事件 choices 支持 condition 字段（flag/not_flag/choice/chain_complete）
+- ✅ 条件性描述 — event_data.conditional_descriptions 根据状态替换事件文本
+- ✅ 链完成奖励 — 5 条链各有一个独特奖励（trade_boost/coal_efficiency/mood_regen/encounter_boost/resource_boost）
+- ✅ 4 个跨链联动事件 — cross_signal_map_01、cross_legend_signal_01、cross_trust_hope_01、cross_synergy_all_01
+- ✅ EventDialog 升级 — 条件性选项渲染 + 链完成奖励横幅
+- ✅ main.gd 通知系统升级 — chain_reward 类型绿色显示 + 5 秒
+- ✅ 5 个现有链事件添加条件性描述
+- ✅ 存档集成 — _choice_history + _chain_rewards_active 序列化
+- ✅ 实机验证 — 无编译错误，86 事件加载正常
 
 ## 关键技术决策
 
 | 决策 | 选择 | 理由 |
 |------|------|------|
-| 雪花粒子 | CPUParticles2D | 性能足够，GPU 粒子不需要 |
-| 背景平铺 | Sprite2D 双层 + z_index | Godot 原生方案，简单可靠 |
-| 铁轨绘制 | TrackDrawer 独立节点 | 在背景之上、火车之下 |
-| 火车绘制 | `_draw()` 代码绘制 | 下载素材风格不匹配 |
-| 暂停系统 | 自定义实现 | 不用 `get_tree().paused`，更灵活 |
-| 背景接缝 | Python PIL 边缘融合 | cosine falloff，精度可控 |
-| 地面视觉 | track_drawer.gd 统一处理 | 渐变+枕木色差+积雪点 |
+| 条件性选项 | choice 字段 + get_conditional_choices 过滤 | 不改变 JSON 结构，向后兼容 |
+| 链完成奖励 | EventSystem 内部存储 + 外部查询接口 | 奖励效果的实际集成留待后续 Phase 逐步实现 |
+| 选择历史持久化 | 加入 get_save_data/restore_save_data | 存档/读档后条件分支仍正确 |
 
 ## Open Questions
 
@@ -73,10 +83,9 @@
 | godot-gdscript-specialist | 20+ | GDScript 实现主力 |
 | technical-artist | 7 | 视觉效果、Shader |
 | lead-programmer | 5 | 架构决策 |
-| gameplay-programmer | 2 | 游戏逻辑 |
-| art-director | 2 | 美术方向 |
+| gameplay-programmer | 3 | 连锁事件逻辑 |
 
 ---
 
-**last_updated**: 2026-06-27
-**next_session_action**: 读取此文件 → 询问李振远本次目标 → 开始工作
+**last_updated**: 2026-06-30
+**next_session_action**: Phase 8.4 主线任务系统 — 有明确目标和进度的主线任务
