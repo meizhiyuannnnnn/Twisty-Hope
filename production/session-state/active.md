@@ -9,8 +9,9 @@
 | **游戏名** | 彼方希冀 |
 | **游戏项目路径** | `C:\Users\李振远\Documents\新建游戏项目\` |
 | **引擎** | Godot 4.7 + GDScript 2.0 |
-| **当前阶段** | Phase 8 内容扩充 🔄 |
-| **开发路线图** | `.claude/docs/game-development-roadmap.md` |
+| **当前阶段** | ⏸️ 暂停（Phase 8 已完成，Phase 9 未开始） |
+| **开发路线图** | `.claude/docs/game-development-roadmap.md`（唯一权威） |
+| **游戏项目状态** | `C:\Users\李振远\Documents\新建游戏项目\docs\DEV-STATUS.md` |
 
 ## 当前进度
 
@@ -102,5 +103,29 @@ Phase 8.4 主线任务系统 ✅ 完成
   - [x] 4 个内部事件（才艺、写信、竞赛、观星）
   - [x] 实机验证：115 事件加载正常，无编译错误
 
-**last_updated**: 2026-06-30
-**next_session_action**: Phase 9 视觉打磨 — 角色像素动画 + 车厢机械动画 + 日夜循环
+**last_updated**: 2026-11-24
+**next_session_action**: 游戏开发已暂停。恢复时从 Phase 9 视觉打磨开始（角色像素动画 + 车厢机械动画 + 日夜循环），先读游戏项目 `docs/DEV-STATUS.md`。
+
+---
+
+## Session 2026-11-24：工作区接管 + 游戏收尾 + 基础设施修复
+
+### 本次完成
+
+1. **工作区全面审计**（公司仓库 + 外部游戏项目），确认实际进度 = Phase 0–8 完成
+2. **游戏项目收尾**（提交 `f1133db`）
+   - 54 处 `print()` 全部包进 `if OS.is_debug_build():`（工具：公司仓库 `tools/wrap_debug_prints.py`）
+   - `project.godot` 项目名乱码 → 「彼方希冀」
+   - 旧存档已迁移到新 userdata 目录
+   - 新增 `docs/DEV-STATUS.md`
+   - 无头模式实跑验证：115 事件 / 6 任务 / 0 脚本错误
+3. **备份**：`C:\Users\李振远\Desktop\彼方希冀_游戏项目备份_20261124.zip`（34 MB，含 `.git`）
+4. **自动化重建**：新增 3 个 PowerShell hook + `.claude/settings.dsh.json`（原 bash hook 在本机无法执行），说明见 `.claude/docs/automation-setup.md`
+5. **文档对齐**：路线图、工作流文档、CLAUDE.md 看板统一到实际进度
+
+### 关键结论
+
+- 本机 Git Bash / WSL 不可用 → 所有 `.sh` hook 从未生效
+- 游戏仓库无远程 → 只有本地 + 桌面 zip 备份
+- 两套 Phase 编号曾冲突 → 统一采用 `.claude/docs/game-development-roadmap.md`，游戏项目内的 `development-roadmap.md` 降级为历史文档
+

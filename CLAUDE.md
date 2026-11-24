@@ -168,15 +168,17 @@ Agent 定义文件位于 `.claude/agents/`，Skills 位于 `.claude/skills/game/
 
 头脑风暴 → 设计 → 实现 → Review → QA → 发布 → Live Ops。使用 `/start` 启动，各阶段 Skill 位于 `.claude/skills/game/`。
 
-**当前阶段：Phase 2 — 视觉升级 + 系统深化**
+**当前阶段：⏸️ 暂停（2026-11-24 收尾归档）** — Phase 0–8 已完成，恢复时从 Phase 9 视觉打磨开始
 
 实际工作循环（5 步）：玩游戏 → 定目标 → Agent 实现 → Claude Review → Godot 验证 → commit
 
 详细文档：
+- 路线图（唯一权威）：@.claude/docs/game-development-roadmap.md
 - 实际工作流：@.claude/docs/game-active-workflow.md
 - 质量标准：@.claude/docs/game-quality-standards.md
 - 核心团队：@.claude/docs/game-core-team.md
 - 技术配置：@.claude/docs/technical-preferences.md
+- 游戏项目状态：`Documents\新建游戏项目\docs\DEV-STATUS.md`
 
 ### 4.2.2 项目类型识别规则
 
@@ -206,7 +208,6 @@ Agent 定义文件位于 `.claude/agents/`，Skills 位于 `.claude/skills/game/
 **违规示例：**
 - ❌ Claude 在对话中直接说「我现在以 req-agent 身份问你…」
 - ❌ Claude 自己写 PRD 然后说「这是 req-agent 的产出」
-
 **正确做法：**
 - ✅ 使用 `Agent` 工具，设置 `subagent_type: "general-purpose"`，在 prompt 中加载 Agent 手册和身份
 - ✅ Agent 产出的内容标记为该 Agent 的产出
@@ -335,7 +336,11 @@ Agent 定义文件位于 `.claude/agents/`，Skills 位于 `.claude/skills/game/
 |---------|---------|------|--------|--------|---------|
 | P001 | 音频分离工具 | ✅ v1.0 完成 | — | 李振远 + Claude | 2026-06-03 |
 | — | P001 复盘改进 | ✅ 完成（2026-06-24 全量审查） | 🟡 中 | Claude | 2026-06-24 |
-| P002 | [待定] 游戏项目 | 🔜 筹备中 | 🟡 中 | 李振远 + Claude | 待定 |
+| P002 | 《彼方希冀》游戏 | ⏸️ 暂停（Phase 0–8 完成，2026-11-24 收尾归档） | 🟡 中 | 李振远 + Claude | 待定 |
+
+> 🎮 **P002 游戏项目**：代码位于 `C:\Users\李振远\Documents\新建游戏项目\`（独立本地仓库，无远程）。
+> 状态见 `docs\DEV-STATUS.md`，路线图见 [.claude/docs/game-development-roadmap.md](.claude/docs/game-development-roadmap.md)。
+> 备份：`Desktop\彼方希冀_游戏项目备份_20261124.zip`。恢复开发从 Phase 9 视觉打磨开始。
 
 > 📁 **项目文件隔离**：P001 的所有文件位于 `p001-audio-separator/` 目录。公司共享文件（CLAUDE.md、agents/、templates/、skills/、lint 配置等）保留在仓库根目录。详见 [项目文件隔离原则](.claude/memory/项目文件隔离原则.md)。
 > 
@@ -464,7 +469,7 @@ Agent 定义文件位于 `.claude/agents/`，Skills 位于 `.claude/skills/game/
 
 ---
 
-> **最后更新**：2026-06-26
+> **最后更新**：2026-11-24
 > **维护者**：李振远 + Claude
-> **本次更新**：引入游戏产品线 — 49 游戏 Agent + 73 Skill + 41 模板 + 12 Hook + 11 规则，双线并存架构
-> **下次 Review**：项目启动前或每月一次
+> **本次更新**：工作区接管 — 游戏项目收尾归档（P002 暂停）、文档对齐实际进度、自动化改造为 PowerShell（原 bash hook 在本机不可用，见 `.claude/docs/automation-setup.md`）
+> **下次 Review**：恢复游戏开发或启动新项目前

@@ -1,12 +1,64 @@
 {
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "statusLine": {
+    "type": "command",
+    "command": "bash .claude/statusline.sh"
+  },
+  "permissions": {
+    "allow": [
+      "Bash(docker --version)",
+      "Bash(docker compose *)",
+      "Bash(docker-compose --version)",
+      "Bash(docker info *)",
+      "Bash(cd *)",
+      "Bash(git *)",
+      "Bash(curl *)",
+      "Bash(npm *)",
+      "Bash(npx *)",
+      "Bash(pip *)",
+      "Bash(pytest *)",
+      "Bash(python *)",
+      "Bash(mypy *)",
+      "Bash(ruff *)",
+      "Bash(uvicorn *)",
+      "Bash([ -d \"C:/Users/李振远/.claude/skills/$skill\" ])",
+      "Bash(xargs grep -l \"戴冰冰\\|指导老师\\|李振远\")",
+      "Bash(videocaptioner --help)",
+      "Bash(videocaptioner transcribe *)",
+      "Bash(gh --version)",
+      "Bash(C:/Program Files/GitHub CLI/gh.exe auth *)",
+      "Bash(ls *)",
+      "Bash(dir *)",
+      "Bash(godot *)"
+    ],
+    "deny": [
+      "Bash(rm -rf *)",
+      "Bash(git push --force*)",
+      "Bash(git push -f *)",
+      "Bash(git reset --hard*)",
+      "Bash(git clean -f*)",
+      "Bash(sudo *)",
+      "Bash(chmod 777*)",
+      "Bash(*>.env*)",
+      "Bash(cat *.env*)",
+      "Bash(type *.env*)",
+      "Read(**/.env*)"
+    ]
+  },
   "hooks": {
-    "PostToolUse": [
+    "SessionStart": [
       {
-        "matcher": "Edit|Write",
+        "matcher": "",
         "hooks": [
           {
             "type": "command",
-            "command": "echo \"[彼方希冀] 文件已修改，请及时 Review。\""
+            "command": "bash .claude/hooks/session-start.sh 2>/dev/null; true",
+            "timeout": 10
+          },
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/detect-gaps.sh 2>/dev/null; true",
+            "timeout": 10
           }
         ]
       }
@@ -18,15 +70,113 @@
           {
             "type": "command",
             "command": "INPUT=$(cat 2>/dev/null || echo \"\"); if echo \"$INPUT\" | grep -qE '\"command\"\\s*:\\s*\"git commit'; then bash .claude/hooks/git-commit-validate.sh <<< \"$INPUT\"; fi"
-          }
-        ]
-      },
-      {
-        "matcher": "Bash",
-        "hooks": [
+          },
           {
             "type": "command",
             "command": "INPUT=$(cat 2>/dev/null || echo \"\"); if echo \"$INPUT\" | grep -qE '\"command\"\\s*:\\s*\"git push'; then bash .claude/hooks/git-push-validate.sh <<< \"$INPUT\"; fi"
+          },
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/validate-commit.sh 2>/dev/null; true",
+            "timeout": 15
+          },
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/validate-push.sh 2>/dev/null; true",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo \"[彼方希冀] 文件已修改，请及时 Review。\""
+          },
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/validate-assets.sh 2>/dev/null; true",
+            "timeout": 10
+          },
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/validate-skill-change.sh 2>/dev/null; true",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "Notification": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/notify.sh 2>/dev/null; true",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "PreCompact": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/pre-compact.sh 2>/dev/null; true",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "PostCompact": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/post-compact.sh 2>/dev/null; true",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/session-stop.sh 2>/dev/null; true",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "SubagentStart": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/log-agent.sh 2>/dev/null; true",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "SubagentStop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/log-agent-stop.sh 2>/dev/null; true",
+            "timeout": 5
           }
         ]
       }

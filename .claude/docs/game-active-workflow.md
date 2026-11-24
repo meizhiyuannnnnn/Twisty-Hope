@@ -2,12 +2,19 @@
 
 > 本文档描述当前阶段的**实际工作循环**，不是理想模型。
 > 理想 7 阶段模型见 `game-workflow.md`（Phase 3+ 逐步启用）。
+> 进度以 `.claude/docs/game-development-roadmap.md` 为准。
 
 ---
 
-## 当前阶段：Phase 2 — 视觉升级 + 系统深化
+## 当前阶段：⏸️ 暂停（2026-11-24）
 
-Phase 0（技术验证）和 Phase 1（最小可玩循环）已完成。当前重心是用像素素材替换代码绘制，扩充事件内容，实现存档系统。
+Phase 0–8 已全部完成（115 事件、6 主线任务、9 车厢、6 职业）。游戏开发于 2026-11-24 收尾归档，恢复时从 **Phase 9 视觉打磨** 开始。
+
+恢复开发前先读：
+- 游戏项目 `docs/DEV-STATUS.md`（完成度 / 内容量 / 已知问题）
+- 本目录 `game-development-roadmap.md`（Phase 9 任务清单）
+
+下面的工作循环在恢复开发后照常适用。
 
 ---
 
@@ -96,9 +103,9 @@ Phase 0（技术验证）和 Phase 1（最小可玩循环）已完成。当前�
 | `game-designer` | 系统设计、数值平衡、事件设计 | 玩法设计 |
 | `technical-director` | 技术架构重大决策、性能瓶颈 | 架构决策 |
 
-### 休眠 41 个（当前阶段不需要）
+### 休眠 41 个（按需启用）
 
-以下 Agent 在 Phase 2 不需要唤醒。Phase 3+ 按需启用。
+以下 Agent 平时不唤醒，Phase 9+ 按需启用。
 
 - **Godot 专项**：godot-shader-specialist、godot-gdextension-specialist、godot-csharp-specialist
 - **UE 系列**：unreal-specialist、ue-blueprint-specialist、ue-gas-specialist、ue-replication-specialist、ue-umg-specialist
@@ -149,16 +156,16 @@ Phase 0（技术验证）和 Phase 1（最小可玩循环）已完成。当前�
 |------------|---------|---------|
 | ① 头脑风暴 | ✅ 已完成（Phase 0 前） | — |
 | ② 设计 | ✅ 已完成（概念文档、Art Bible） | — |
-| ③ 实现 | 🔄 进行中（Phase 2） | 当前 |
-| ④ Review | 🔄 部分进行（Claude 审查） | 逐步强化 |
-| ⑤ QA | ⏳ 待启用 | Phase 3（内容扩充后） |
-| ⑥ 发布 | ⏳ 待启用 | 首次测试版发布前 |
+| ③ 实现 | ✅ 已完成（Phase 0–8） | — |
+| ④ Review | ✅ 每轮 Claude 审查 | — |
+| ⑤ QA | ⏳ 待启用 | Phase 10（平衡与 Bug 修复时） |
+| ⑥ 发布 | ⏳ 待启用 | Phase 11（首次测试版发布前） |
 | ⑦ Live Ops | ⏳ 待启用 | 正式发布后 |
 
-**当前不需要完整的 7 阶段流程。** 等到游戏内容足够丰富（Phase 3+），需要系统性 QA、发布流程、社区运营时，再逐步启用对应阶段和 Agent。
+**当前不需要完整的 7 阶段流程。** 等到进入 Phase 10–11（系统性 QA、发布流程、社区运营）时，再逐步启用对应阶段和 Agent。
 
 ---
 
 > **维护者**：李振远 + Claude
-> **最后更新**：2026-06-27
-> **下次 Review**：Phase 2 完成后
+> **最后更新**：2026-11-24
+> **下次 Review**：恢复开发时
