@@ -18,6 +18,9 @@
 *.bat text eol=crlf
 *.cmd text eol=crlf
 
+# PowerShell：无 BOM + CRLF（PS 5.1 解析器在 LF 下会误判中文字符串边界）
+*.ps1 text eol=crlf
+
 # 二进制文件
 *.png binary
 *.jpg binary

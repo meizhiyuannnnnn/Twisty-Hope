@@ -338,13 +338,13 @@ Agent 定义文件位于 `.claude/agents/`，Skills 位于 `.claude/skills/game/
 | — | P001 复盘改进 | ✅ 完成（2026-06-24 全量审查） | 🟡 中 | Claude | 2026-06-24 |
 | P002 | 《彼方希冀》游戏 | ⏸️ 暂停（Phase 0–8 完成，2026-11-24 收尾归档） | 🟡 中 | 李振远 + Claude | 待定 |
 
-> 🎮 **P002 游戏项目**：代码位于 `C:\Users\李振远\Documents\新建游戏项目\`（独立本地仓库，无远程）。
+> 🎮 **P002 游戏项目**：代码位于 `C:\Users\李振远\Documents\新建游戏项目\`，远程备份为 GitHub 私有仓库 `meizhiyuannnnnn/Twisty-Hope-Game`（分支 `master`）。
 > 状态见 `docs\DEV-STATUS.md`，路线图见 [.claude/docs/game-development-roadmap.md](.claude/docs/game-development-roadmap.md)。
-> 备份：`Desktop\彼方希冀_游戏项目备份_20261124.zip`。恢复开发从 Phase 9 视觉打磨开始。
+> 恢复开发从 Phase 9 视觉打磨开始。
 
-> 📁 **项目文件隔离**：P001 的所有文件位于 `p001-audio-separator/` 目录。公司共享文件（CLAUDE.md、agents/、templates/、skills/、lint 配置等）保留在仓库根目录。详见 [项目文件隔离原则](.claude/memory/项目文件隔离原则.md)。
+> 📁 **项目文件隔离**：P001 的所有文件位于 `p001-audio-separator/` 目录。公司共享文件（CLAUDE.md、agents/、templates/、skills/、lint 配置等）保留在仓库根目录。详见 [.claude/docs/directory-structure.md](.claude/docs/directory-structure.md)。
 > 
-> 📋 **P001 复盘**：详见 [P001 经验教训](.claude/memory/p001-lessons-learned.md) 和 [改进路线图](.claude/memory/p001-improvement-roadmap.md)。
+> 📋 **P001 复盘**：详见 [PRD 附录 A · P001 经验教训](p001-audio-separator/docs/prd-audio-separation.md)（原来的 `.claude/memory/` 文件未被 git 跟踪，已于 2026-11-24 并入 PRD 长期保存）。
 
 ### Agent 任务分配
 

@@ -120,8 +120,9 @@ Phase 8.4 主线任务系统 ✅ 完成
    - 新增 `docs/DEV-STATUS.md`
    - 无头模式实跑验证：115 事件 / 6 任务 / 0 脚本错误
 3. **备份**：`C:\Users\李振远\Desktop\彼方希冀_游戏项目备份_20261124.zip`（34 MB，含 `.git`）
-4. **自动化重建**：新增 3 个 PowerShell hook + `.claude/settings.dsh.json`（原 bash hook 在本机无法执行），说明见 `.claude/docs/automation-setup.md`
-5. **文档对齐**：路线图、工作流文档、CLAUDE.md 看板统一到实际进度
+4. **远程备份**：建立 GitHub 私有仓库 `meizhiyuannnnnn/Twisty-Hope-Game` 并推送全部提交；`zy/` 加入 gitignore
+5. **自动化重建**：新增 3 个 PowerShell hook + `.claude/settings.dsh.json`（原 bash hook 在本机无法执行），说明见 `.claude/docs/automation-setup.md`
+6. **文档对齐**：路线图、工作流文档、CLAUDE.md 看板统一到实际进度；P001 经验教训并入 PRD 附录 A
 
 ### 关键结论
 

@@ -22,20 +22,27 @@ DSH 使用 `settings.dsh.json`，只启用了 3 个 hook，全部是 PowerShell�
 
 旧的 14 个 bash 脚本保留在 `hooks/` 下作为参考，不再执行。
 
+> ⚠️ `settings.dsh.json` 不在 `.claude/docs/` 或 `.claude/hooks/` 下，**默认被 `.gitignore` 忽略**（`.claude/*` + 例外白名单）。
+> 它只影响谁在跑 hook，不影响公司知识本身，因此**故意不入库**；换机器时需要重新创建（内容见上表）。
+
 ---
 
-## 编码约定
+## 编码与换行约定
 
-- 所有 `session-log.md` 的写入必须用 UTF-8（`session-end.ps1` 已强制）。
-- 历史日志里 2026-06-26 ~ 06-30 的 session 块曾出现乱码，2026-11-24 已核验：当前文件无乱码、无替换字符（此前的乱码显示是终端解码问题，文件本身正常）。
-- 用 `Get-Content -Encoding UTF8` 读取；不要用系统默认编码读中文文件。
+- `session-log.md` 的写入一律 UTF-8（`session-end.ps1` 已强制）。
+- 历史日志（2026-06-26 ~ 06-30）在终端里显示过乱码，2026-11-24 已做字节级核验：文件本身无乱码、无替换字符（`0xEFBFBD`），是终端解码问题。
+- 读取中文文件一律 `Get-Content -Encoding UTF8`，写入用 `[System.IO.File]::WriteAllText(path, text, New-Object System.Text.UTF8Encoding($false))`。
+- `.gitattributes` 已为 `*.ps1` 指定 `text eol=crlf`：PowerShell 脚本必须是 CRLF + 无 BOM。
 
 ---
 
 ## 已知问题
 
-1. **PowerShell 解析陷阱**：文件必须是 CRLF + 无 BOM。行内混用中英文字符串时，PS 5.1 解析器可能把中文字符吃掉或误判引号边界。写 hook 后必须用 `[System.Management.Automation.Language.Parser]::ParseFile` 校验，且报错时**先排除文件损坏**（对比 `Get-Content` 与原始写入内容）。
-2. **游戏项目文本文件编码**：`新建游戏项目` 里的 `.gd` / `.json` / `.md` 均为 UTF-8 无 BOM。用 PowerShell 写这些文件时**不能**用 `Set-Content -Value`（会加 BOM 或按 GBK 写），一律用 `[System.IO.File]::WriteAllText(path, text, UTF8Encoding($false))`。
+1. **PowerShell 解析陷阱**：文件必须是 CRLF + 无 BOM。行内混用中英文字符串时，PS 5.1 解析器可能误判引号边界或把中文字符吃掉。
+   写完 hook 后必须用 `[System.Management.Automation.Language.Parser]::ParseFile` 校验；
+   报错时**先排除文件损坏**（对比 `Get-Content` 与原始写入内容），再看逻辑。
+2. **游戏项目文本编码**：`新建游戏项目` 里的 `.gd` / `.json` / `.md` 均为 UTF-8 无 BOM。用 PowerShell 写这些文件时**不能**用 `Set-Content -Value`（会加 BOM 或按 GBK 写）。
+3. **verify 脚本的编码假设**：`verify-phase8.ps1` 假定 `data/` 与 `scripts/data/` 下的 JSON 为 UTF-8 无 BOM、`scripts/` 为 UTF-8。若手工用记事本另存过，脚本会报「无 BOM」或乱码。
 
 ---
 
